@@ -6,6 +6,7 @@ Created on Dec 3, 2012
 import webapp2
 from google.appengine.api import users
 import cEntities as cE
+import cDBUtil
 from cUser import *
 from cDB import *
 class MainPage(webapp2.RequestHandler):
@@ -14,12 +15,14 @@ class MainPage(webapp2.RequestHandler):
         if user:
             cuser = cUser(user)
             cdb = cDB()
-            cdb.createInfoForUser(cuser.getUser())
-            cdb.createListForUser("test", cuser.user)
-            cdb.addSeriesToListForUser("mytest", "test",cuser.getUser())
-            for s in cdb.getListForUser("test", cuser.getUser()).series:
-                self.response.out.write("1")
-                self.response.out.write(s)
+            test = cDBUtil.test()
+            self.response.out.write("<table>")
+            for s in test:
+                self.response.out.write("<tr>")
+                self.response.out.write("<td>"+s.seriesName +"</td>")
+                self.response.out.write("<td>" +s.releaseName +"</td>")
+                self.response.out.write("<tr>")
+            self.response.out.write("</table>")
 
 app = webapp2.WSGIApplication([('/', MainPage)],
                               debug=True)

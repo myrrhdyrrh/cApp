@@ -13,6 +13,16 @@ import webapp2
 from google.appengine.ext import db
 from google.appengine.api import users
 
+
+class Wednesday(db.Model):
+    """Models a Wednesday"""
+    date = db.DateProperty()
+
+class Release(db.Model):
+    """Modes a list of updates"""
+    seriesName= db.StringProperty()
+    releaseName = db.StringProperty()
+    
 class Series(db.Model):
     """Models a series title. Basic storage entity"""
     name = db.StringProperty()
@@ -34,31 +44,7 @@ class cList(db.Model):
     and a field for a list of upcoming releases for the series in the list
     """
     name = db.StringProperty()
+
     user = db.StringProperty()
     series = db.StringListProperty()
     releases = db.StringListProperty()
-
-def clearAllSeries():
-    """
-    remove all series from storage
-    """
-    db.delete(Series.all())
-
-def storeAllSeries():
-    """
-    test storage of all series in currentreads.txt
-    """
-    f = open("currentreads.txt")
-    sers = [a.strip() for a in f]
-    for ser in sers:
-        series = Series()
-        series.name=ser
-        series.put()
-        
-def loadAllSeries():
-    """
-    test retrieval of all series in storage
-    """
-    series= db.GqlQuery("SELECT * FROM Series ORDER BY name")
-    return series
-        

@@ -3,7 +3,7 @@ from BeautifulSoup import BeautifulSoup, SoupStrainer
 from google.appengine.ext import db
 
 
-def getSeries(series):
+def getSeries(series, fun=None):
     url = "http://www.midtowncomics.com/store/weeklyreleasebuy.asp"
     #open the file that contains the comics we're currently reading
     series.extend([a +" Annual" for a in series])
@@ -34,16 +34,18 @@ def getSeries(series):
                     
                     if formatText not in weekSeries:
                         weekSeries.append(formatText)
+                        if fun!=None:
+                            fun(formatText, title)
 
     #write dat series list
     return weekSeries
 
-def getSeriesFromEntityList(entities):
+def getSeriesFromEntityList(entities, fun=None):
     """
     look up what series are coming out this week from a list of Series
     """
     series = [e.name for e in entities]
-    return getSeries(series)
+    return getSeries(series, fun)
 
 def formatTitle(title):
     """

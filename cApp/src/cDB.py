@@ -14,6 +14,7 @@ class cDB():
         """
         series= db.GqlQuery("SELECT * FROM Series ORDER BY name")
         return series
+    
     def createInfoForUser(self, user):
         """
         create new entity for a given user
@@ -24,6 +25,7 @@ class cDB():
             userE = UserInfo(key_name=user.user_id())
             userE.userID= user.user_id()
             userE.userLists=[]
+            self.createListForUser("Follow", user)
             userE.put()
      
     def createListForUser(self, listName, user):
@@ -56,6 +58,7 @@ class cDB():
         """
         add a new series to list for a given user
         """
+        listName = listName if listName!=None or listName!="" else "Follow"
         test = db.Key.from_path("UserInfo", user.user_id())
         query = db.GqlQuery("SELECT * from cList WHERE ANCESTOR IS :1 AND name=:2", test,listName)
         check=query.fetch(1)[0]
