@@ -41,6 +41,11 @@ class cDB():
             userI.userLists.append(listName)
             userI.put()
 
+    def getAllListsForUser(self, user):
+        test = db.Key.from_path("UserInfo", user.user_id())
+        query = db.GqlQuery("SELECT * FROM cList WHERE ANCESTOR IS :1", test)
+        return query.run()
+    
     def getListForUser(self, listName, user):
         test = db.Key.from_path("UserInfo", user.user_id())
         query = db.GqlQuery("SELECT * FROM cList WHERE ANCESTOR IS :1 AND name =:2", test, listName)

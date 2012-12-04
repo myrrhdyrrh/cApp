@@ -10,15 +10,12 @@
 	-signup: technically taken care of if i just use google login. GOOD ENOUGH
 	-login: don't know how this will work in an api, right now can only do it in web
 	-allow users to select series to follow
-	-allow users to create lists of series
-		-can be done by making a new entity, has field for tag name and field for list of names of series
 	-lookup of weekly releases happens serverside for ALL series in db, user just gets series they care about
 		-should this be automated: server updates all users' entities with new releases, or should users be the ones to pull their own updates
 		-send notification? either via text or email. optional.
 
 -figure out how to make api
--switch from direct reference to db to an adapter
-	-figure out how to declare interfaces in python:use abstract classes that do nothing
+
 -make api
 -make webportal
 -make android app
