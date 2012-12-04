@@ -1,0 +1,25 @@
+-implement auto-filling of database with all current series
+	-can be done by iterating through the last 4 weeks of releases and dumping them into the db
+		-subproblem: finding the date of the upcoming wednesday and the 3 wednesdays prior
+		-if a series is not already in the database, add it
+		-subproblem: how to decide if an entry is worth adding
+			-can use the utility functions in scrapeComicList to ignore trades, one-shots, and variant covers
+			-subproblem: but what if we want a one-shot to be added, for the current week, and then removed later?
+				-we can add an field to the entity describing the format of the series. TP and One shots can be handled this way
+-implement user system
+	-signup: technically taken care of if i just use google login. GOOD ENOUGH
+	-login: don't know how this will work in an api, right now can only do it in web
+	-allow users to select series to follow
+	-allow users to create lists of series
+		-can be done by making a new entity, has field for tag name and field for list of names of series
+	-lookup of weekly releases happens serverside for ALL series in db, user just gets series they care about
+		-should this be automated: server updates all users' entities with new releases, or should users be the ones to pull their own updates
+		-send notification? either via text or email. optional.
+
+-figure out how to make api
+-switch from direct reference to db to an adapter
+	-figure out how to declare interfaces in python:use abstract classes that do nothing
+-make api
+-make webportal
+-make android app
+		

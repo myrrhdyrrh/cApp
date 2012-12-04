@@ -44,6 +44,7 @@ def getSeriesFromEntityList(entities):
     """
     series = [e.name for e in entities]
     return getSeries(series)
+
 def formatTitle(title):
     """
     remove Vol # from title
