@@ -44,7 +44,6 @@ class cList(db.Model):
     and a field for a list of upcoming releases for the series in the list
     """
     name = db.StringProperty()
-
     user = db.StringProperty()
     series = db.StringListProperty()
     releases = db.StringListProperty()

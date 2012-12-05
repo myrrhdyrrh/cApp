@@ -39,12 +39,12 @@ class pickSeries(webapp2.RequestHandler):
             """<html>
             <body>
               <form action="/pickSeries" method="post">""")
-            db = cDB()
-            for s in db.getAllSeries():
+            cdb = cDB()
+            for s in cdb.getSeriesUserDoesNotFollow(user):
                 self.response.out.write("<input type='checkbox' name='seriesName' value='")
-                self.response.out.write(s.name)
+                self.response.out.write(s)
                 self.response.out.write("'>")
-                self.response.out.write(s.name)
+                self.response.out.write(s)
                 self.response.out.write("<br>")
                   
             
@@ -78,10 +78,32 @@ class userSeries(webapp2.RequestHandler):
         if user:
             cuser=cUser(user)
             series = cdb.getAllSeriesForUser(cuser.getUser())
-            for s in series:
+            series = [s.name for s in series]
+            for s in sorted(series):
                 self.response.out.write(s+"<br>")
-    
+        else:
+            self.redirect(users.create_login_url(self.request.uri))
+            
+class userReleases(webapp2.RequestHandler):
+    """
+    page showing user their releases for the week
+    """
+    def get(self):
+        user=users.get_current_user()
+        cdb = cDB()
+        cDBUtil.updateAllSeries()
+        #db.delete(cList.all())
+        if user:
+            cuser= cUser(user)
+            cdb.updateAllListsForUser(user)
+            for l in cdb.getAllListsForUser(user):
+                self.response.out.write(+l.name+":<br>")
+                for s in l.releases:
+                    self.response.out.write(s +"<br>")
+        else:
+            self.redirect(users.create_login_url(self.request.uri))
 app = webapp2.WSGIApplication([('/', MainPage),
                                ('/pickSeries', pickSeries),
-                               ('/UserSeries', userSeries)],
+                               ('/UserSeries', userSeries),
+                               ('/UserReleases', userReleases)],
                               debug=True)

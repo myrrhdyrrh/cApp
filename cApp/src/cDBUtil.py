@@ -47,6 +47,15 @@ def getAllWeekReleases():
     query = db.GqlQuery("SELECT * FROM Release WHERE ANCESTOR IS :1", day)
     return query.run()
 
+def getReleaseForSeries(seriesName):
+    """
+    Get a release for a series for the upcoming wednesday, if it exists
+    """
+    day = getNextWednesday()
+    query = db.GqlQuery("SELECT * FROM Release WHERE ANCESTOR IS :1 AND seriesName= :2", day, seriesName)
+    if getCountOfQuery(query)>0:
+        return query.fetch(1)[0]
+    return None
 def makeNextWednesday():
     """
     Make an entry for the wednesday after the latest in storage
@@ -83,6 +92,14 @@ def makeReleaseForSeries(releaseName, seriesName):
         release.releaseName=releaseName.strip()
         release.put()
     
+def getCountOfQuery(query):
+    """
+    get number of results of a query
+    """
+    count = 0
+    for q in query:
+        count+=1
+    return count
 def test():
     db.delete(Wednesday.all())
     testDay = Wednesday()

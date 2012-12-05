@@ -6,6 +6,7 @@ implements IcDB "interface"
 '''
 from google.appengine.ext import db
 from google.appengine.api import users
+import cDBUtil
 from cEntities import *
 class cDB():
     
@@ -60,12 +61,13 @@ class cDB():
 
         if self.userExists(user):
             userI = self.getUserInfo(user)
-            series = cList(parent= userI)
-            series.name=listName
-            series.user=user.user_id()
-            series.put()
-            userI.userLists.append(listName)
-            userI.put()
+            if listName not in userI.userLists:
+                series = cList(parent= userI)
+                series.name=listName
+                series.user=user.user_id()
+                series.put()
+                userI.userLists.append(listName)
+                userI.put()
 
     def deleteListForUser(self, listName, user):
         """
@@ -77,7 +79,13 @@ class cDB():
     def getAllListsForUser(self, user):
         test = self.getUserInfo(user)
         query = db.GqlQuery("SELECT * FROM cList WHERE ANCESTOR IS :1", test)
-        return query.run()
+        output =set()
+        check = set()
+        for q in query:
+            if q.name not in check:
+                check.add(q.name)
+                output.add(q)
+        return output
     
     def getListForUser(self, listName, user):
         test = self.getUserInfo(user)
@@ -91,15 +99,30 @@ class cDB():
         """
         key = self.getUserInfo(user)
         query = db.GqlQuery("SELECT * FROM cList WHERE ANCESTOR IS :1", key)
+        #seriesQuery = db.GqlQuery("SELECT UNIQUE FROM :1", query)
         output=set()
+        check= set()
         for q in query:
             series = q.series
             for s in series:
-                if s not in output:
-                    output.add(s)
+                if s not in check:
+                    check.add(s)
+                    query = db.GqlQuery("SELECT * FROM Series WHERE name= :1", s)
+                    if cDBUtil.getCountOfQuery(query) >0:
+                        output.add(query.fetch(1)[0])
         output = list(output)
-        output.sort()
         return output
+
+    def getSeriesUserDoesNotFollow(self,user):
+        """
+        get all series a user is not currently following
+        """
+        follow = set([s.name for s in self.getAllSeriesForUser(user)])
+        all = set([s.name for s in self.getAllSeries()])
+        notfollow =set.difference(all,follow)
+        output = list(notfollow)
+        output.sort() 
+        return output   
     
     def addSeriesToListForUser(self, seriesName, listName, user):
         """
@@ -125,7 +148,26 @@ class cDB():
         """
         l = self.getListForUser(listName, user)
         l.series.remove(seriesName)      
-        
-    def updateSeriesForListforUser(self,seriesName, listName,user):
-        raise NotImplementedError("abstract")
     
+    def updateAllListsForUser(self, user):
+        """
+        updates all list for a user
+        """
+        for l in self.getUserInfo(user).userLists:
+            self.updateListforUser(l, user)
+    
+    def updateListforUser(self,listName,user):
+        """
+        updates a list for a user
+        """
+        key = self.getUserInfo(user)
+        query = db.GqlQuery("SELECT * FROM cList WHERE ANCESTOR IS :1 and name= :2", key, listName)
+        l = query.fetch(1)[0]
+        for series in l.series:
+            check = cDBUtil.getReleaseForSeries(series)
+            if check!=None and check.releaseName not in l.releases:
+                
+                l.releases.append(check.releaseName)
+        l.put()
+    
+            
