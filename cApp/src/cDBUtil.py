@@ -58,11 +58,12 @@ def makeNextWednesday():
         new = Wednesday()
         new.date=oldest.date+datetime.timedelta(days=7)
         new.put()
+
 def getNextWednesday():
     """
     Get the entity for the upcoming wednesday
     """
-    dayQuery = db.GqlQuery("SELECT * FROM Wednesday WHERE date >:1", datetime.date.today())
+    dayQuery = db.GqlQuery("SELECT * FROM Wednesday WHERE date >=:1", datetime.date.today())
     day = dayQuery.fetch(1)[0] #only 1 wednesday in advance is possible
     return day
 
@@ -71,15 +72,23 @@ def makeReleaseForSeries(releaseName, seriesName):
     creates a Release entity for a release
     """
     day = getNextWednesday()
-    release = Release(parent=day)
-    release.seriesName=seriesName.strip()
-    release.releaseName=releaseName.strip()
-    release.put()
+    query = db.GqlQuery("SELECT * FROM Release WHERE ANCESTOR IS :1 AND seriesName= :2", day, seriesName)
+    results = query.run()
+    count =0
+    for r in results:
+        count+=1
+    if count==0:
+        release = Release(parent=day)
+        release.seriesName=seriesName.strip()
+        release.releaseName=releaseName.strip()
+        release.put()
     
 def test():
+    db.delete(Wednesday.all())
     testDay = Wednesday()
     testDay.date=datetime.date(year=2012,month=11,day=28)
     testDay.put()
+    #db.delete(Release.all())
     makeNextWednesday()
-    updateAllSeries()
-    return getAllWeekReleases()
+    #updateAllSeries()
+    #getAllWeekReleases()

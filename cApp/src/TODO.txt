@@ -1,6 +1,6 @@
 -implement auto-filling of database with all current series
 	-can be done by iterating through the last 4 weeks of releases and dumping them into the db
-		-subproblem: finding the date of the upcoming wednesday and the 3 wednesdays prior
+		-subproblem: formatting previous wednesdays to the correct url
 		-if a series is not already in the database, add it
 		-subproblem: how to decide if an entry is worth adding
 			-can use the utility functions in scrapeComicList to ignore trades, one-shots, and variant covers
@@ -10,7 +10,7 @@
 	-signup: technically taken care of if i just use google login. GOOD ENOUGH
 	-login: don't know how this will work in an api, right now can only do it in web
 	-allow users to select series to follow: this is arguably a GUI problem, since the functionality is in place- show all series,  select a series, add it to users list
-	-lookup of weekly releases happens serverside for ALL series in db, user just gets series they care about
+	-user gets updates for series they care about
 		-should this be automated: server updates all users' entities with new releases, or should users be the ones to pull their own updates
 		-send notification? either via text or email. optional.
 
