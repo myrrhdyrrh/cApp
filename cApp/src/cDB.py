@@ -16,7 +16,8 @@ class cDB():
         """
         test = db.Key.from_path("UserInfo", user.user_id())
         check = db.get(test)
-        return check==None
+        output = check!=None
+        return output
     
     def getUserInfo(self, user):
         """
@@ -87,10 +88,11 @@ class cDB():
         
     def getAllListsForUser(self, user):
         test = self.getUserInfo(user)
-        query = db.GqlQuery("SELECT * FROM cList WHERE ANCESTOR IS :1", test)
         output =set()
         for s in test.userLists:
-            key = db.Key.from_path("cList", s)
+            #query = db.GqlQuery("SELECT * FROM cList WHERE 'Key Name' IS :1", s)
+            temp = db.Key.from_path("cList", s)
+            key =temp
             output.add(db.get(key))
         check = set()
         for q in output:
@@ -142,18 +144,15 @@ class cDB():
         """
         listName = listName if listName!=None or listName!="" else "Follow"
         listName= listName+user.user_id()
-        test = self.getUserInfo(user)
-        query = db.GqlQuery("SELECT * from cList WHERE ANCESTOR IS :1 AND name=:2", test,listName)
-        results = query.fetch(1)
+        
         key = db.Key.from_path("cList", listName)
         results = db.get(key)
         count = 1#cDBUtil.getCountOfQuery(query)
         if count!=0:
-            userI = results#[0]
-            series = userI.series
+            series = results.series
             if seriesName not in series and cDBUtil.seriesExists(seriesName):
-                userI.series.append(seriesName)
-                userI.put()
+                results.series.append(seriesName)
+                results.put()
                 return True
         return False
     
@@ -175,7 +174,7 @@ class cDB():
         """
         updates a list for a user
         """
-        key = db.Key.from_path("cList", listName+user.user_id())#self.getUserInfo(user)
+        key = db.Key.from_path("cList", listName)#self.getUserInfo(user)
         #query = db.GqlQuery("SELECT * FROM cList WHERE ANCESTOR IS :1 and name= :2", key, listName)
         l = db.get(key)#query.fetch(1)[0]
         for series in l.series:

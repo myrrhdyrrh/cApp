@@ -76,6 +76,8 @@ def makeNextWednesday():
         new = Wednesday()
         new.date=oldest.date+datetime.timedelta(days=7)
         new.put()
+        return True
+    return False
 
 def getNextWednesday():
     """

@@ -62,8 +62,7 @@ class pickSeries(webapp2.RequestHandler):
         results = self.request.get_all("seriesName")
         cdb=cDB()
         user =users.get_current_user()
-        if not cdb.userExists(user):
-            cdb.createInfoForUser(user)
+
         self.response.out.write("added to your follow list:<br>")
         for r in results:
             self.response.out.write(r +"<br>")
@@ -71,8 +70,9 @@ class pickSeries(webapp2.RequestHandler):
         val= self.request.get("batchAdd")
         for r in val.split('\n'):
             r=r.strip()
-            if cdb.addSeriesToListForUser(r, "Follow", user):
-                self.response.out.write(r +"<br>")
+            if r!="":
+                if cdb.addSeriesToListForUser(r, "Follow", user):
+                    self.response.out.write(r +"<br>")
             
 
 class userSeries(webapp2.RequestHandler):
@@ -125,21 +125,33 @@ class SetUp(webapp2.RequestHandler):
         if user:
             cdb = cDB()
             u = UserInfo(key_name = user.user_id())
-            u.userLists=["Follow"]
+            u.userLists=["Follow"+user.user_id()]
             u.put()
             c = cList(key_name="Follow"+user.user_id())
             c.name="Follow"
+            c.series=["dummy series"]
+            c.releases=["dummy series #1"]
             c.put()
             w= Wednesday()
             w.date= datetime.date(year=2012, month=12, day=5)
             w.put()
+            t = cDBUtil.makeNextWednesday()
+            while not t:
+                t=cDBUtil.makeNextWednesday()
             r = Release()
             r.seriesName="dummy series"
             r.releaseName = "dummy series #1"
             r.put()
+            #self.redirect("/update/UpdateSeries")
         else:
             self.redirect(users.create_login_url(self.request.uri))
 
+class Test(webapp2.RequestHandler):
+    def get(self):
+        user =users.get_current_user()
+        query = db.GqlQuery("SELECT * FROM cList WHERE 'Key Name' IS :1", s)
+        temp = query.fetch(1)[0]
+        
 app = webapp2.WSGIApplication([('/', MainPage),
                                ('/PickSeries', pickSeries),
                                ('/UserSeries', userSeries),
