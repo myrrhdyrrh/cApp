@@ -26,9 +26,9 @@ class pickSeries(webapp2.RequestHandler):
         user = users.get_current_user()
         cdb = cDB()
         if user:
-            u = UserInfo(key_name = user.user_id())
-            u.userLists=["Follow"]
-            u.put()
+            #u = UserInfo(key_name = user.user_id())
+            #u.userLists=["Follow"+user.user_id()]
+            #u.put()
             cuser= cUser(user)
             self.response.out.write(
             """<html>

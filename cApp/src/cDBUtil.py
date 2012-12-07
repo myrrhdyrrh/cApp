@@ -70,7 +70,7 @@ def makeNextWednesday():
     Make an entry for the wednesday after the latest in storage
     """
     day = db.GqlQuery("SELECT * FROM Wednesday ORDER BY date DESC")
-    results = day.fetch(limit=10)
+    results = day.fetch(limit=3)
     oldest = results[0]
     if datetime.date.today() > oldest.date:
         new = Wednesday()

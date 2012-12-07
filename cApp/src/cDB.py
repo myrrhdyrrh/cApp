@@ -57,8 +57,9 @@ class cDB():
             userE.userLists=[]
             userE.put()
             series = cList(key_name = "Follow"+user.user_id())
+            series.releases=[]
+            series.series=[]
             series.name="Follow"
-            series.user=user.user_id()
             series.put()
             userE.userLists.append("Follow"+user.user_id())
             userE.put()
@@ -93,7 +94,9 @@ class cDB():
             #query = db.GqlQuery("SELECT * FROM cList WHERE 'Key Name' IS :1", s)
             temp = db.Key.from_path("cList", s)
             key =temp
-            output.add(db.get(key))
+            result = db.get(key)
+            if result !=None:
+                output.add(result)
         check = set()
         for q in output:
             if q.name not in check:
@@ -142,6 +145,8 @@ class cDB():
         """
         add a new series to list for a given user
         """
+        if not self.userExists(user):
+            self.createInfoForUser(user)
         listName = listName if listName!=None or listName!="" else "Follow"
         listName= listName+user.user_id()
         
