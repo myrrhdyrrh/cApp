@@ -8,7 +8,7 @@ this module contains all storage entities used by the app
 import cgi
 import datetime
 import urllib
-import webapp2
+#import webapp2
 
 from google.appengine.ext import db
 from google.appengine.api import users
@@ -44,6 +44,6 @@ class cList(db.Model):
     and a field for a list of upcoming releases for the series in the list
     """
     name = db.StringProperty()
-    user = db.StringProperty()
+    #user = db.StringProperty()
     series = db.StringListProperty()
     releases = db.StringListProperty()

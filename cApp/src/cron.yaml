@@ -1,0 +1,4 @@
+cron:
+- description: thursday morning comic update
+  url: /update/UpdateSeries
+  schedule: every thursday 09:00

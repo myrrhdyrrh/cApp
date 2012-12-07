@@ -9,6 +9,8 @@
 -implement user system
 	-signup: technically taken care of if i just use google login. GOOD ENOUGH
 	-login: don't know how this will work in an api, right now can only do it in web
+	-add a date field to a cList, to keep track of the last time a list was updated. use this to check when to perform updates
+	-also a date field on series, to keep track of last time an issue was released, to clear out things that end
 	-user gets updates for series they care about
 		-should this be automated: server updates all users' entities with new releases, or should users be the ones to pull their own updates
 		-send notification? either via text or email. optional.

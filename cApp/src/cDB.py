@@ -27,8 +27,17 @@ class cDB():
             check = db.get(test)
             return check
         else:
-            check = self.createInfoForUser(user)
-            return check
+            userE = UserInfo(key_name = user.user_id())
+            userE.put()
+            listName = "Follow"+user.user_id()
+            if listName not in userE.userLists:
+                series = cList(key_name=listName)
+                series.name="Follow"
+                series.user=user.user_id()
+                series.put()
+                userE.userLists.append(listName)
+                userE.put()
+            return userE
     
     def getAllSeries(self):
         """
@@ -46,11 +55,11 @@ class cDB():
             userE.userID= user.user_id()
             userE.userLists=[]
             userE.put()
-            series = cList(parent= userE)
+            series = cList(key_name = "Follow"+user.user_id())
             series.name="Follow"
             series.user=user.user_id()
             series.put()
-            userE.userLists.append("Follow")
+            userE.userLists.append("Follow"+user.user_id())
             userE.put()
             return userE
      
@@ -58,16 +67,16 @@ class cDB():
         """
         create a new cList for a given user
         """
-
+        listName=listName+user.user_id()
         if self.userExists(user):
             userI = self.getUserInfo(user)
             if listName not in userI.userLists:
                 series = cList(parent= userI)
                 series.name=listName
                 series.user=user.user_id()
-                series.put()
+                #series.put()
                 userI.userLists.append(listName)
-                userI.put()
+                #userI.put()
 
     def deleteListForUser(self, listName, user):
         """
@@ -80,26 +89,29 @@ class cDB():
         test = self.getUserInfo(user)
         query = db.GqlQuery("SELECT * FROM cList WHERE ANCESTOR IS :1", test)
         output =set()
+        for s in test.userLists:
+            key = db.Key.from_path("cList", s)
+            output.add(db.get(key))
         check = set()
-        for q in query:
+        for q in output:
             if q.name not in check:
                 check.add(q.name)
                 output.add(q)
         return output
     
     def getListForUser(self, listName, user):
-        test = self.getUserInfo(user)
-        query = db.GqlQuery("SELECT * FROM cList WHERE ANCESTOR IS :1 AND name =:2", test, listName)
+        
+        key = db.Key.from_path("cList", listName+user.user_id())
 
-        return query.fetch(1)[0]
+        return db.get(key)
     
     def getAllSeriesForUser(self, user):
         """
         Get a list of all series a user has in lists
         """
+        #something is happening causing a new clist to be created where user=userid of logged in user
         key = self.getUserInfo(user)
-        query = db.GqlQuery("SELECT * FROM cList WHERE ANCESTOR IS :1", key)
-        #seriesQuery = db.GqlQuery("SELECT UNIQUE FROM :1", query)
+        query = self.getAllListsForUser(user)#db.GqlQuery("SELECT * FROM cList WHERE ANCESTOR IS :1", key)
         output=set()
         check= set()
         for q in query:
@@ -117,7 +129,7 @@ class cDB():
         """
         get all series a user is not currently following
         """
-        follow = set([s.name for s in self.getAllSeriesForUser(user)])
+        follow = set()#set([s.name for s in self.getAllSeriesForUser(user)])
         all = set([s.name for s in self.getAllSeries()])
         notfollow =set.difference(all,follow)
         output = list(notfollow)
@@ -129,18 +141,21 @@ class cDB():
         add a new series to list for a given user
         """
         listName = listName if listName!=None or listName!="" else "Follow"
+        listName= listName+user.user_id()
         test = self.getUserInfo(user)
         query = db.GqlQuery("SELECT * from cList WHERE ANCESTOR IS :1 AND name=:2", test,listName)
         results = query.fetch(1)
-        count = 0
-        for r in results:
-            count+=1
+        key = db.Key.from_path("cList", listName)
+        results = db.get(key)
+        count = 1#cDBUtil.getCountOfQuery(query)
         if count!=0:
-            userI = results[0]
+            userI = results#[0]
             series = userI.series
-            if seriesName not in series:
+            if seriesName not in series and cDBUtil.seriesExists(seriesName):
                 userI.series.append(seriesName)
                 userI.put()
+                return True
+        return False
     
     def deletSeriesFromListForUser(self, seriesName, listName, user):  
         """
@@ -160,9 +175,9 @@ class cDB():
         """
         updates a list for a user
         """
-        key = self.getUserInfo(user)
-        query = db.GqlQuery("SELECT * FROM cList WHERE ANCESTOR IS :1 and name= :2", key, listName)
-        l = query.fetch(1)[0]
+        key = db.Key.from_path("cList", listName+user.user_id())#self.getUserInfo(user)
+        #query = db.GqlQuery("SELECT * FROM cList WHERE ANCESTOR IS :1 and name= :2", key, listName)
+        l = db.get(key)#query.fetch(1)[0]
         for series in l.series:
             check = cDBUtil.getReleaseForSeries(series)
             if check!=None and check.releaseName not in l.releases:

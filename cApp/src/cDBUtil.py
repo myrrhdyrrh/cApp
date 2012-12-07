@@ -8,9 +8,17 @@ Contains utility methods for auto-populating the data store and retreiving updat
 
 from google.appengine.ext import db
 from google.appengine.api import users
-import scrapeComicList, datetime
+import scrapeComicList, datetime, urllib,urllib2
+import xml.dom.minidom as minidom
 from cEntities import *
 
+
+def seriesExists(name):
+    """
+    Check if a series exists in storage
+    """
+    check = db.GqlQuery("SELECT * FROM Series WHERE name = :1",name )
+    return getCountOfQuery(check)>0
 def clearAllSeries():
     """
     remove all series from storage
@@ -56,6 +64,7 @@ def getReleaseForSeries(seriesName):
     if getCountOfQuery(query)>0:
         return query.fetch(1)[0]
     return None
+
 def makeNextWednesday():
     """
     Make an entry for the wednesday after the latest in storage
@@ -100,6 +109,26 @@ def getCountOfQuery(query):
     for q in query:
         count+=1
     return count
+
+
+def storeSeries():
+    address = "http://www.midtowncomics.com/rssfeed/rssallnewrelease.xml"
+    file_request = urllib2.Request(address) 
+    file_opener = urllib2.build_opener() 
+    file_object = file_opener.open(file_request) 
+    file_feed = file_object.read() 
+    file_xml = minidom.parseString(file_feed) 
+    item_node = file_xml.getElementsByTagName("title")
+    for item in item_node:
+        name = item.firstChild.nodeValue
+        name = scrapeComicList.formatTitle(name)
+        name = scrapeComicList.formatLine(name)[1]
+        name=name.strip()
+        if name!="" and not seriesExists(name):
+            e = Series()
+            e.name = name
+            e.put()
+
 def test():
     db.delete(Wednesday.all())
     testDay = Wednesday()
@@ -109,3 +138,5 @@ def test():
     makeNextWednesday()
     #updateAllSeries()
     #getAllWeekReleases()
+
+storeSeries()

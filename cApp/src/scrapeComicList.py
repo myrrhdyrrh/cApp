@@ -2,7 +2,6 @@ import urllib,urllib2,re, cEntities
 from BeautifulSoup import BeautifulSoup, SoupStrainer
 from google.appengine.ext import db
 
-
 def getSeries(series, fun=None):
     url = "http://www.midtowncomics.com/store/weeklyreleasebuy.asp"
     #open the file that contains the comics we're currently reading

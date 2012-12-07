@@ -11,7 +11,7 @@ class cUser:
     """
     class that contains the functions needed for a user to interact with the datastore
     """
-    user = users.User()
+    user = None
     def __init__(self, user):
         self.user=user
     def getUser(self):
