@@ -3,20 +3,42 @@ Created on Dec 3, 2012
 
 @author: Frank
 '''
-import webapp2
+import webapp2,os
 from google.appengine.api import users
+from google.appengine.ext.webapp import template
 import cEntities as cE
 import cDBUtil
 from cUser import *
 from cDB import *
+
+
+path = os.path.join(os.path.dirname(__file__)+"\\templates\\","navigation.html")
+
+def getNav(url):
+    """
+    gets the navigation bar, using provided url to generate the logout url
+    """
+    tv= { 'url':url}
+    return template.render(path,tv)
+
+
+    
+def getLogoutUrl(item):
+    """
+    gets the logout url
+    """
+    return users.create_logout_url(item.request.uri)
+
+def writeNavBar(item):
+    """
+    write the navigation bar to the response of the given item
+    """
+    item.response.out.write(getNav(getLogoutUrl(item))+"<br>")
 class MainPage(webapp2.RequestHandler):
     def get(self):
         user= users.get_current_user()
         if user:
-            self.response.out.write("""<a href='/PickSeries'> Pick Series To Follow</a><br>
-                                        <a href='/UserSeries'> See Series You Follow</a><br>
-                                        <a href='/UserReleases'> See This Week's Releases For Series You Follow</a><br>""")
-            self.response.out.write("<a href='" +users.create_login_url(self.request.uri)+"'> Logout</a><br>")
+            writeNavBar(self)
         else:
             self.redirect(users.create_login_url(self.request.uri))
 
@@ -30,6 +52,8 @@ class pickSeries(webapp2.RequestHandler):
             #u.userLists=["Follow"+user.user_id()]
             #u.put()
             cuser= cUser(user)
+            
+            writeNavBar(self)
             self.response.out.write(
             """<html>
             <body>
@@ -62,7 +86,7 @@ class pickSeries(webapp2.RequestHandler):
         results = self.request.get_all("seriesName")
         cdb=cDB()
         user =users.get_current_user()
-
+        writeNavBar(self)
         self.response.out.write("added to your follow list:<br>")
         for r in results:
             self.response.out.write(r +"<br>")
@@ -84,6 +108,7 @@ class userSeries(webapp2.RequestHandler):
         
         cdb=cDB()
         if user:
+            writeNavBar(self)
             cuser=cUser(user)
             series = cdb.getAllSeriesForUser(cuser.getUser())
             series = [s.name for s in series]
@@ -100,6 +125,7 @@ class userReleases(webapp2.RequestHandler):
         user=users.get_current_user()
         cdb = cDB()
         if user:
+            writeNavBar(self)
             cuser= cUser(user)
             cdb.updateAllListsForUser(user)
             for l in cdb.getAllListsForUser(user):
@@ -111,13 +137,9 @@ class userReleases(webapp2.RequestHandler):
             
 class UpdateSeries(webapp2.RequestHandler):
     def get(self):
-        user= users.get_current_user()
-        if user:
-            cDBUtil.makeNextWednesday()
-            cDBUtil.storeSeries()
-            cDBUtil.updateAllSeries()
-        else:
-            self.redirect(users.create_login_url(self.request.uri))
+        cDBUtil.makeNextWednesday()
+        cDBUtil.storeSeries()
+        cDBUtil.updateAllSeries()
             
 class SetUp(webapp2.RequestHandler):
     def get(self):
@@ -148,9 +170,7 @@ class SetUp(webapp2.RequestHandler):
 
 class Test(webapp2.RequestHandler):
     def get(self):
-        user =users.get_current_user()
-        query = db.GqlQuery("SELECT * FROM cList WHERE 'Key Name' IS :1", s)
-        temp = query.fetch(1)[0]
+        self.response.out.write("hello")
         
 app = webapp2.WSGIApplication([('/', MainPage),
                                ('/PickSeries', pickSeries),

@@ -5,9 +5,15 @@ api_version: 1
 threadsafe: true
 
 handlers:
-- url: /.*
-  script: helloworld.app
+- url: /stylesheets
+  static_dir: stylesheets
 
 - url: /update/*.
   script: helloworld.app
   login: admin
+    
+- url: /.*
+  script: helloworld.app
+
+
+ 

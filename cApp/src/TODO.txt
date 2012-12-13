@@ -1,11 +1,9 @@
 -implement auto-filling of database with all current series
-	-can be done by iterating through the last 4 weeks of releases and dumping them into the db
-		-subproblem: formatting previous wednesdays to the correct url
-		-if a series is not already in the database, add it
 		-subproblem: how to decide if an entry is worth adding
 			-can use the utility functions in scrapeComicList to ignore trades, one-shots, and variant covers
 			-subproblem: but what if we want a one-shot to be added, for the current week, and then removed later?
 				-we can add an field to the entity describing the format of the series. TP and One shots can be handled this way
+				-not sure if i care enough to do that
 -implement user system
 	-signup: technically taken care of if i just use google login. GOOD ENOUGH
 	-login: don't know how this will work in an api, right now can only do it in web
