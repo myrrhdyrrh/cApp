@@ -12,7 +12,13 @@ from cUser import *
 from cDB import *
 
 
-path = os.path.join(os.path.dirname(__file__)+"\\templates\\","navigation.html")
+def getTemplatePath(name):
+    """
+    get the path for a specified template file
+    """
+    return os.path.dirname(__file__)+"/templates/"+name+".html"
+
+path = getTemplatePath("navigation")
 
 def getNav(url):
     """
@@ -48,36 +54,12 @@ class pickSeries(webapp2.RequestHandler):
         user = users.get_current_user()
         cdb = cDB()
         if user:
-            #u = UserInfo(key_name = user.user_id())
-            #u.userLists=["Follow"+user.user_id()]
-            #u.put()
-            cuser= cUser(user)
-            
             writeNavBar(self)
-            self.response.out.write(
-            """<html>
-            <body>
-              <form action="/PickSeries" method="post">
-            <textarea name="batchAdd" id="message"></textarea>
-            <input type="submit" name="submit" id="submit" value="Send"/>
-            </form>
-            """)
-            self.response.out.write(
-            """<html>
-              <form action="/PickSeries" method="post">""")
-            
-            for s in cdb.getSeriesUserDoesNotFollow(user):
-                self.response.out.write("<input type='checkbox' name='seriesName' value='")
-                self.response.out.write(s)
-                self.response.out.write("'>")
-                self.response.out.write(s)
-                self.response.out.write("<br>")
-                  
-            
-            self.response.out.write("""<input type="submit" value="Submit">
-              </form>
-            </body>
-          </html>""")
+            series = cdb.getSeriesUserDoesNotFollow(user)
+            tv = { 'series': series
+                  }
+            self.response.out.write(template.render(getTemplatePath("PickSeries"), tv))
+
             
         else:
             self.redirect(users.create_login_url(self.request.uri))
@@ -86,17 +68,14 @@ class pickSeries(webapp2.RequestHandler):
         results = self.request.get_all("seriesName")
         cdb=cDB()
         user =users.get_current_user()
+        results = [r for r in results if cdb.addSeriesToListForUser(r, "Follow", user)]
+        r2 = self.request.get("batchAdd")
+        r2=[r.strip() for r in r2 if (cdb.addSeriesToListForUser(r.strip(), "Follow", user))]
+        results.extend(r2)
+        tv={"results":results}
         writeNavBar(self)
-        self.response.out.write("added to your follow list:<br>")
-        for r in results:
-            self.response.out.write(r +"<br>")
-            cdb.addSeriesToListForUser(r, "Follow", user)
-        val= self.request.get("batchAdd")
-        for r in val.split('\n'):
-            r=r.strip()
-            if r!="":
-                if cdb.addSeriesToListForUser(r, "Follow", user):
-                    self.response.out.write(r +"<br>")
+        self.response.out.write(template.render(getTemplatePath("results"), tv))
+        
             
 
 class userSeries(webapp2.RequestHandler):
@@ -112,8 +91,9 @@ class userSeries(webapp2.RequestHandler):
             cuser=cUser(user)
             series = cdb.getAllSeriesForUser(cuser.getUser())
             series = [s.name for s in series]
-            for s in sorted(series):
-                self.response.out.write(s+"<br>")
+            tv= {"results":sorted(series)}
+            self.response.out.write(template.render(getTemplatePath("UserResults"), tv))
+    
         else:
             self.redirect(users.create_login_url(self.request.uri))
             
@@ -130,8 +110,8 @@ class userReleases(webapp2.RequestHandler):
             cdb.updateAllListsForUser(user)
             for l in cdb.getAllListsForUser(user):
                 self.response.out.write(l.name+":<br>")
-                for s in l.releases:
-                    self.response.out.write(s +"<br>")
+                tv = {"results": l.releases}
+                self.response.out.write(template.render(getTemplatePath("UserResults"), tv))
         else:
             self.redirect(users.create_login_url(self.request.uri))
             
@@ -167,15 +147,44 @@ class SetUp(webapp2.RequestHandler):
             #self.redirect("/update/UpdateSeries")
         else:
             self.redirect(users.create_login_url(self.request.uri))
-
-class Test(webapp2.RequestHandler):
-    def get(self):
-        self.response.out.write("hello")
         
+class ManageUserLists(webapp2.RequestHandler):
+    
+    def setup(self, user):
+        cdb=cDB()
+        writeNavBar(self)
+        results = cdb.getAllListsForUser(user)
+            
+        
+        tv = {"results": results,
+                  "id":user.user_id()}
+        self.response.out.write(template.render(getTemplatePath("ManageLists"), tv))
+        
+    def get(self):
+        user = users.get_current_user()
+        if user:
+            self.setup(user)
+        else:
+            self.redirect(users.create_login_url(self.request.uri))
+
+    def post(self):
+        user = users.get_current_user()
+        if user:
+            name = self.request.get("listName")
+            cdb= cDB()
+            cdb.createListForUser(name, user)
+            self.setup(user)
+        else:
+            self.redirect(users.create_login_url(self.request.uri))
+
+
 app = webapp2.WSGIApplication([('/', MainPage),
                                ('/PickSeries', pickSeries),
                                ('/UserSeries', userSeries),
                                ('/UserReleases', userReleases),
+                               ('/ManageLists', ManageUserLists),
                                ('/update/UpdateSeries',UpdateSeries),
                                ('/update/Setup', SetUp)],
                               debug=True)
+template.register_template_library(
+ 'common.templatefilters')

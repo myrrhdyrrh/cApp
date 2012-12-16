@@ -127,8 +127,9 @@ def storeSeries():
         name = scrapeComicList.formatLine(name)[1]
         name=name.strip()
         if name!="" and not seriesExists(name):
-            e = Series()
+            e = Series(key_name=name)
             e.name = name
+            e.date= getNextWednesday()
             e.put()
 
 def test():

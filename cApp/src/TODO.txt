@@ -5,7 +5,6 @@
 				-we can add an field to the entity describing the format of the series. TP and One shots can be handled this way
 				-not sure if i care enough to do that
 -implement user system
-	-signup: technically taken care of if i just use google login. GOOD ENOUGH
 	-login: don't know how this will work in an api, right now can only do it in web
 	-add a date field to a cList, to keep track of the last time a list was updated. use this to check when to perform updates
 	-also a date field on series, to keep track of last time an issue was released, to clear out things that end
@@ -14,7 +13,6 @@
 		-send notification? either via text or email. optional.
 
 -figure out how to make api
-
 -make api
 -make webportal
 -make android app

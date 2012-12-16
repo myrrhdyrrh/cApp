@@ -1,0 +1,15 @@
+	body{
+		font:"Trebuchet MS", sans-serif;
+		margin: 50px;
+      	background:#f7f7f7;
+      	font-family:georgia;
+      	font-size:22px;
+      	text-shadow:1px 1px 1px #FFF;
+
+	}
+ul{
+	
+	margin: 0;
+	padding:none;
+	list-style: none;
+}

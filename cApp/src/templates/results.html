@@ -1,0 +1,12 @@
+<head><link type="text/css" rel="stylesheet" href="/stylesheets/base.css" /></head>
+{% if results %}
+<p>added to your follow list:<br/>
+<ul>
+{% for r in results %}
+<li>{{r}} </li>
+{% endfor %}
+</ul>
+</p>
+{% else %}
+<p> NO SERIES ADDED!<p>
+{% endif %}

@@ -26,6 +26,7 @@ class Release(db.Model):
 class Series(db.Model):
     """Models a series title. Basic storage entity"""
     name = db.StringProperty()
+    dateUpdated = db.DateProperty()
     
 class UserInfo(db.Model):
     """

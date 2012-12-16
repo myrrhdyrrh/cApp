@@ -1,0 +1,15 @@
+<head><link type="text/css" rel="stylesheet" href="/stylesheets/base.css" />
+	</head>
+<body>
+<form action="/PickSeries" method="post">
+<textarea name="batchAdd" id="message"></textarea>
+<input type="submit" name="submit" id="submit" value="Send"/>
+</form>
+
+<form action="/PickSeries" method="post">
+{% for s in series%}
+<input type='checkbox' name='seriesName' value='{{s}}'> {{s}}<br/>
+{% endfor %}
+<input type="submit" value="Submit">
+</form>
+</body>

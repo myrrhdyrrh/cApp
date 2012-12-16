@@ -29,6 +29,7 @@ class cDB():
             return check
         else:
             userE = UserInfo(key_name = user.user_id())
+            
             userE.put()
             listName = "Follow"+user.user_id()
             if listName not in userE.userLists:
@@ -69,16 +70,18 @@ class cDB():
         """
         create a new cList for a given user
         """
-        listName=listName+user.user_id()
+        
         if self.userExists(user):
             userI = self.getUserInfo(user)
             if listName not in userI.userLists:
-                series = cList(parent= userI)
+                listName2= listName+user.user_id()
+                series = cList(key_name=listName2)
                 series.name=listName
-                series.user=user.user_id()
-                #series.put()
-                userI.userLists.append(listName)
-                #userI.put()
+                series.releases=[]
+                series.series=[]
+                series.put()
+                userI.userLists.append(listName2)
+                userI.put()
 
     def deleteListForUser(self, listName, user):
         """
@@ -134,7 +137,7 @@ class cDB():
         """
         get all series a user is not currently following
         """
-        follow = set()#set([s.name for s in self.getAllSeriesForUser(user)])
+        follow = set([s.name for s in self.getAllSeriesForUser(user)])
         all = set([s.name for s in self.getAllSeries()])
         notfollow =set.difference(all,follow)
         output = list(notfollow)
