@@ -87,6 +87,13 @@ def getNextWednesday():
     day = dayQuery.fetch(1)[0] #only 1 wednesday in advance is possible
     return day
 
+def getLastWednesday():
+    """
+    Get the entity for the Wednesday before the upcoming one
+    """
+    dayQuery = db.GqlQuery("SELECT * FROM WEDNESDAY ORDER BY date DESC")
+    results=dayQuery.fetch(limit=3)
+    return results[1]
 def makeReleaseForSeries(releaseName, seriesName):
     """
     creates a Release entity for a release

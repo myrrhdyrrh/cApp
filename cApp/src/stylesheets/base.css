@@ -13,3 +13,18 @@ ul{
 	padding:none;
 	list-style: none;
 }
+
+.comicItem{
+	margin-left:auto;
+	margin-right:auto; 
+	width:20%;
+}
+#pick{
+	margin-left:auto;
+	margin-right:auto; 
+	width:20%;
+}
+.toShow{
+	display:none;
+	color:#ffffff;
+}

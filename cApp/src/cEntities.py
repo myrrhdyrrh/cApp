@@ -48,3 +48,4 @@ class cList(db.Model):
     #user = db.StringProperty()
     series = db.StringListProperty()
     releases = db.StringListProperty()
+    dateUpdated= db.DateProperty()

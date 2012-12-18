@@ -55,8 +55,9 @@ class pickSeries(webapp2.RequestHandler):
         cdb = cDB()
         if user:
             writeNavBar(self)
-            series = cdb.getSeriesUserDoesNotFollow(user)
-            tv = { 'series': series
+            series = [n.name for n in cdb.getAllSeries()]
+            tv = { 'series': series,
+                  'names':[n.name for n in cdb.getAllListsForUser(user)]
                   }
             self.response.out.write(template.render(getTemplatePath("PickSeries"), tv))
 
@@ -65,13 +66,16 @@ class pickSeries(webapp2.RequestHandler):
             self.redirect(users.create_login_url(self.request.uri))
                           
     def post(self):
-        results = self.request.get_all("seriesName")
+        series = self.request.get_all("seriesName")
         cdb=cDB()
         user =users.get_current_user()
-        results = [r for r in results if cdb.addSeriesToListForUser(r, "Follow", user)]
-        r2 = self.request.get("batchAdd")
-        r2=[r.strip() for r in r2 if (cdb.addSeriesToListForUser(r.strip(), "Follow", user))]
-        results.extend(r2)
+        lists = self.request.get_all("listName")
+        series.extend([r.strip() for r in self.request.get("batchAdd")])
+        results=[]
+        for s in series:
+            for l in lists:
+                if cdb.addSeriesToListForUser(s, l, user):
+                    results.append(s)
         tv={"results":results}
         writeNavBar(self)
         self.response.out.write(template.render(getTemplatePath("results"), tv))

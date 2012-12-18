@@ -1,15 +1,82 @@
-<head><link type="text/css" rel="stylesheet" href="/stylesheets/base.css" />
+<head>
+<link type="text/css" rel="stylesheet" href="/stylesheets/base.css" />
+
+  <script type='text/javascript' charset='utf-8' src='http://code.jquery.com/jquery-latest.js'></script>
+  <script type='text/javascript' charset='utf-8'>
+   function makeTable(names){
+
+   var test = document.getElementById("lists");
+   test.innerHTML=test.innerHTML;
+   var tab = document.createElement("table");
+   
+   tab.id="userLists";
+   test.appendChild(tab);
+   var rowcount = tab.rows.count;
+
+   var tWidth = tab.offsetWidth;
+   var row= tab.insertRow(rowcount);
+   var cCount=0;
+   var c=0;
+   var wWidth = screen.width;
+   var itemsPerRow=0;
+   var itemCount=0;
+   var firstRow=true;
+   for(var i=0;i<names.length;i++){
+		
+		 //this is a really dumb/ugly way to make sure every row has the same number of entries  
+   		if(row.offsetWidth>800 && firstRow){
+   		  c++;
+   		  cCount=0;
+   		  row=tab.insertRow(c);
+   		  firstRow=false;
+   		  itemsPerRow=itemCount;
+   		  itemCount=0;
+   		 }
+   		 
+   		if(itemCount==itemsPerRow && !firstRow){
+   		  c++;
+   		  row=tab.insertRow(c);
+   		  itemCount=0;
+   		}
+   		 itemCount++;
+   		  var cell1 = row.insertCell(cCount);
+   		  var element1 = document.createElement("input");
+          element1.type = "checkbox";
+          element1.name="listName";
+          element1.value=names[i];
+      	  element1.id=names[i];
+      	  var label = document.createElement("label");
+      	  label.htmlFor=names[i];
+      	  label.appendChild(document.createTextNode(names[i]));
+          cell1.appendChild(element1);
+   		  cell1.appendChild(label);
+   }
+   }
+  </script>
 	</head>
 <body>
+<form action="/PickSeries" method="post"><br>
+<div id="lists" style="text-align:center; margin:0 auto; width:900px; border-radius:15px; background:#FFFFFF">
+
+	<script>
+		$(document).ready(function(){
+		var temp = {{names|jsonify|safe}};
+		
+		makeTable(temp)});
+		</script>
+</div>
+
+<br/>
+<div id="pick" class='comicItem'>
 <form action="/PickSeries" method="post">
 <textarea name="batchAdd" id="message"></textarea>
 <input type="submit" name="submit" id="submit" value="Send"/>
 </form>
-
-<form action="/PickSeries" method="post">
+<br/>
 {% for s in series%}
-<input type='checkbox' name='seriesName' value='{{s}}'> {{s}}<br/>
+<input type='checkbox' name='seriesName' value='{{s}}'> {{s}}</input><br/>
 {% endfor %}
 <input type="submit" value="Submit">
 </form>
+</div>
 </body>

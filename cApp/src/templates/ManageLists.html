@@ -4,10 +4,31 @@
   <link rel='stylesheet' href='/stylesheets/popbox.css' type='text/css' media='screen' charset='utf-8'>
   <script type='text/javascript' charset='utf-8' src='/JS/jquery.js'></script>
   <script type='text/javascript' charset='utf-8' src='/JS/popbox.js'></script>
+  <script src="/JS/bPopUp.js"></script>
   <script type='text/javascript' charset='utf-8'>
+   function fillDiv(listval){
+    	var t = document.getElementById("listVal");
+    	for(var i=0; i<listval.length;i++){
+    	
+    	
+    		t.innerHTML= t.innerHTML+listval[i]+"<br/>";
+    	}
+    	t.style.cssText="";
+    }
+    function showList(listID){
+    	var t="#"+listID;
+    	var v = window[listID];
+    	fillDiv(v);
+    	$('#listVal').bPopup();
+
+    }
+  
     $(document).ready(function(){
       $('.popbox').popbox();
+      
     });
+    
+   
   </script>
     <style type='text/css' media='screen'>
     label { display: block; }
@@ -24,6 +45,7 @@
   </style>
 </head>
 
+<div  id="listVal" class="toShow"></div>
   <div class='popbox'>
     <a class='open' href='#'>
       Create New List
@@ -49,7 +71,11 @@
 <p>These are your lists:<br/>
 
 {% for r in results %}
-<a href={{r.name}}{{id}}>{{r.name}}</a><br/>
+<script>
+var {{r.name|safe}} = {{r.series|jsonify|safe}};
+</script>
+<a  onclick='showList("{{r.name|safe}}")' href="javascript:void(0);" id="{{r.name}}">{{r.name}}</a>
+    <br/>
 {% endfor %}
 
 </p>

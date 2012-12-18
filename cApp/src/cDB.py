@@ -6,7 +6,7 @@ implements IcDB "interface"
 '''
 from google.appengine.ext import db
 from google.appengine.api import users
-import cDBUtil
+import cDBUtil, datetime
 from cEntities import *
 class cDB():
     
@@ -73,7 +73,7 @@ class cDB():
         
         if self.userExists(user):
             userI = self.getUserInfo(user)
-            if listName not in userI.userLists:
+            if listName not in userI.userLists and "#" not in listName and "\"" not in listName and "'" not in listName and "\\" not in listName:
                 listName2= listName+user.user_id()
                 series = cList(key_name=listName2)
                 series.name=listName
@@ -185,11 +185,15 @@ class cDB():
         key = db.Key.from_path("cList", listName)#self.getUserInfo(user)
         #query = db.GqlQuery("SELECT * FROM cList WHERE ANCESTOR IS :1 and name= :2", key, listName)
         l = db.get(key)#query.fetch(1)[0]
+        if l.dateUpdated>= cDBUtil.getLastWednesday():
+            #if this list has been updated after last wednesday, there aren't any new updates, so ignore and move on
+            return
         for series in l.series:
             check = cDBUtil.getReleaseForSeries(series)
             if check!=None and check.releaseName not in l.releases:
                 
                 l.releases.append(check.releaseName)
+            l.dateUpdated= datetime.date.today()
         l.put()
     
             
