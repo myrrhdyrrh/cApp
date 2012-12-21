@@ -13,6 +13,15 @@ import urllib
 from google.appengine.ext import db
 from google.appengine.api import users
 
+class cUser():
+    """
+    Dummy class to wrap around a user id
+    """
+    userid=0
+    def __init__(self,userid):
+        self.userid=userid
+    def user_id(self):
+        return self.userid
 
 class Wednesday(db.Model):
     """Models a Wednesday"""
@@ -49,3 +58,4 @@ class cList(db.Model):
     series = db.StringListProperty()
     releases = db.StringListProperty()
     dateUpdated= db.DateProperty()
+    toUpdate = db.BooleanProperty()

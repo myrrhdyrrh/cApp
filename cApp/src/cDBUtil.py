@@ -72,7 +72,7 @@ def makeNextWednesday():
     day = db.GqlQuery("SELECT * FROM Wednesday ORDER BY date DESC")
     results = day.fetch(limit=3)
     oldest = results[0]
-    if datetime.date.today() > oldest.date:
+    if datetime.date.today() >= oldest.date:
         new = Wednesday()
         new.date=oldest.date+datetime.timedelta(days=7)
         new.put()
@@ -91,7 +91,7 @@ def getLastWednesday():
     """
     Get the entity for the Wednesday before the upcoming one
     """
-    dayQuery = db.GqlQuery("SELECT * FROM WEDNESDAY ORDER BY date DESC")
+    dayQuery = db.GqlQuery("SELECT * FROM Wednesday ORDER BY date DESC")
     results=dayQuery.fetch(limit=3)
     return results[1]
 def makeReleaseForSeries(releaseName, seriesName):
@@ -144,9 +144,5 @@ def test():
     testDay = Wednesday()
     testDay.date=datetime.date(year=2012,month=11,day=28)
     testDay.put()
-    #db.delete(Release.all())
     makeNextWednesday()
-    #updateAllSeries()
-    #getAllWeekReleases()
 
-storeSeries()

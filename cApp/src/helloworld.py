@@ -7,7 +7,8 @@ import webapp2,os
 from google.appengine.api import users
 from google.appengine.ext.webapp import template
 import cEntities as cE
-import cDBUtil
+import cDBUtil, json
+from collections import Iterable
 from cUser import *
 from cDB import *
 
@@ -17,6 +18,17 @@ def getTemplatePath(name):
     get the path for a specified template file
     """
     return os.path.dirname(__file__)+"/templates/"+name+".html"
+def getDictForObj(obj):
+    """
+    get dictionary of attributes for an object
+    """
+    temp = {}
+    atts =[attr for attr in dir(obj) if not callable(attr) and not attr.startswith("_")]
+    for a in atts:
+        t= getattr(obj, a, "")
+        if isinstance(t, basestring):
+            temp[a]=t
+    return temp
 
 path = getTemplatePath("navigation")
 
@@ -40,6 +52,7 @@ def writeNavBar(item):
     write the navigation bar to the response of the given item
     """
     item.response.out.write(getNav(getLogoutUrl(item))+"<br>")
+
 class MainPage(webapp2.RequestHandler):
     def get(self):
         user= users.get_current_user()
@@ -70,18 +83,18 @@ class pickSeries(webapp2.RequestHandler):
         cdb=cDB()
         user =users.get_current_user()
         lists = self.request.get_all("listName")
-        series.extend([r.strip() for r in self.request.get("batchAdd")])
+        series.extend([r.strip() for r in self.request.get("batchAdd").split("\n")])
         results=[]
         for s in series:
             for l in lists:
                 if cdb.addSeriesToListForUser(s, l, user):
-                    results.append(s)
-        tv={"results":results}
+                    if s not in results:
+                        results.append(s)
+        tv={"results":results,
+            "lists":lists}
         writeNavBar(self)
         self.response.out.write(template.render(getTemplatePath("results"), tv))
         
-            
-
 class userSeries(webapp2.RequestHandler):
     """
     page for showing all series a user currently has in any list
@@ -181,12 +194,43 @@ class ManageUserLists(webapp2.RequestHandler):
         else:
             self.redirect(users.create_login_url(self.request.uri))
 
-
+class UserAPI(webapp2.RequestHandler):
+    def get(self):
+         method = self.request.uri.split("/")[-1]
+         
+    def post(self):
+        self.response.headers['Content-Type'] = 'application/json'   
+        
+        params = self.request.arguments()
+        urlsplit = self.request.uri.split("/")
+        apiIndex = urlsplit.index("api")
+        userId = urlsplit[apiIndex+1]
+        methodName = urlsplit[apiIndex+2].split("?")[0]
+        paramVals = [str(self.request.get(t)).replace("\"","") for t in params]
+        paramVals.append(cE.cUser(userId))
+        cdb = cDB()
+        method = getattr(cdb, methodName)
+        if method!=None:
+            output=method(*paramVals) 
+            if output!=None:
+                if output!=True and output !=False:
+                    #we know it has to be some kind of entity or list of entities
+                    if isinstance(output,Iterable):
+                        temp =[]
+                        for o in output:
+                            temp.append(getDictForObj(o))
+                        output=temp
+                    else:
+                        output= getDictForObj(output)
+                    
+                self.response.out.write(json.dumps(output))
+        
 app = webapp2.WSGIApplication([('/', MainPage),
                                ('/PickSeries', pickSeries),
                                ('/UserSeries', userSeries),
                                ('/UserReleases', userReleases),
                                ('/ManageLists', ManageUserLists),
+                               (r'/api/.*/.*', UserAPI),
                                ('/update/UpdateSeries',UpdateSeries),
                                ('/update/Setup', SetUp)],
                               debug=True)

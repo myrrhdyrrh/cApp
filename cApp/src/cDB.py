@@ -73,8 +73,9 @@ class cDB():
         
         if self.userExists(user):
             userI = self.getUserInfo(user)
-            if listName not in userI.userLists and "#" not in listName and "\"" not in listName and "'" not in listName and "\\" not in listName:
-                listName2= listName+user.user_id()
+            listName2= listName+user.user_id()
+            if listName2 not in userI.userLists and "#" not in listName and "\"" not in listName and "'" not in listName and "\\" not in listName:
+
                 series = cList(key_name=listName2)
                 series.name=listName
                 series.releases=[]
@@ -161,10 +162,11 @@ class cDB():
             if seriesName not in series and cDBUtil.seriesExists(seriesName):
                 results.series.append(seriesName)
                 results.put()
+                results.toUpdate=True
                 return True
         return False
     
-    def deletSeriesFromListForUser(self, seriesName, listName, user):  
+    def deleteSeriesFromListForUser(self, seriesName, listName, user):  
         """
         remove a series from a given list for a user
         """
@@ -182,10 +184,9 @@ class cDB():
         """
         updates a list for a user
         """
-        key = db.Key.from_path("cList", listName)#self.getUserInfo(user)
-        #query = db.GqlQuery("SELECT * FROM cList WHERE ANCESTOR IS :1 and name= :2", key, listName)
-        l = db.get(key)#query.fetch(1)[0]
-        if l.dateUpdated>= cDBUtil.getLastWednesday():
+        key = db.Key.from_path("cList", listName)
+        l = db.get(key)
+        if (l.toUpdate!=None and not l.toUpdate) and (l.dateUpdated!=None and l.dateUpdated>= cDBUtil.getLastWednesday().date):
             #if this list has been updated after last wednesday, there aren't any new updates, so ignore and move on
             return
         for series in l.series:
@@ -194,6 +195,7 @@ class cDB():
                 
                 l.releases.append(check.releaseName)
             l.dateUpdated= datetime.date.today()
+            l.toUpdate=False
         l.put()
     
             
