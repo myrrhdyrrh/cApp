@@ -10,7 +10,8 @@ handlers:
   static_dir: stylesheets
 - url: /JS
   static_dir: JS
-  
+- url: /images
+  static_dir: images
 - url: /update/.*
   script: helloworld.app
   login: admin

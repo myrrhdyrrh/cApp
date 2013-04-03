@@ -25,6 +25,7 @@ ul{
 	width:20%;
 }
 .toShow{
+	padding:20px;
 	display:none;
 	color:#ffffff;
 }

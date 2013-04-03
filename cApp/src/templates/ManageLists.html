@@ -5,10 +5,29 @@
   <script type='text/javascript' charset='utf-8' src='/JS/jquery.js'></script>
   <script type='text/javascript' charset='utf-8' src='/JS/popbox.js'></script>
   <script src="/JS/bPopUp.js"></script>
+
   <script type='text/javascript' charset='utf-8'>
+  function showButton(id){
+  
+    var xBtn = $("#" + id).children(".closeSign");
+    xBtn.css("display", "inline");
+  }
+
+function hideButton(){
+    
+    $(".closeSign").css("display", "none");
+}
    function fillDiv(listval){
     	var t = document.getElementById("listVal");
-    	t.innerHTML=listval
+    	t.innerHTML=""
+    	var list = listval.split(", ")
+    	for(var i=0; i<list.length;i++){
+    	
+    		t.innerHTML=t.innerHTML+ "<div id='entry"+i+"' class='outer'><img class ='closeSign' src='/images/closebutton1' style='display:none'>"+list[i]+"</div><br/>";
+    	}
+	$(".outer").hover(
+    function() {showButton(this.id);},
+    function() {hideButton(this.id);});
     	t.style.cssText="";
     }
     function showList(listID){
@@ -20,8 +39,7 @@
   		data: {listName: listID},
   		success: function(resp){
   		
-  		dat = resp.replace(/u'/g,"").replace(/'/g,"").replace(/[\[\]]/g,"").replace(/, /g, "<br/>")
-  		alert(dat);
+  		dat = resp.replace(/u'/g,"").replace(/'/g,"").replace(/[\[\]]/g,"")
   		fillDiv(dat);
   		
     	$('#listVal').bPopup();
@@ -30,11 +48,14 @@
     	
 
     }
-  
     $(document).ready(function(){
       $('.popbox').popbox();
-      
+		
+
     });
+    
+
+	
     
    
   </script>
