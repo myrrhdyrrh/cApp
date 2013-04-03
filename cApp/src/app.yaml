@@ -11,7 +11,7 @@ handlers:
 - url: /JS
   static_dir: JS
   
-- url: /update/*.
+- url: /update/.*
   script: helloworld.app
   login: admin
     

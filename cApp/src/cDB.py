@@ -161,8 +161,9 @@ class cDB():
             series = results.series
             if seriesName not in series and cDBUtil.seriesExists(seriesName):
                 results.series.append(seriesName)
-                results.put()
                 results.toUpdate=True
+                
+                results.put()
                 return True
         return False
     
@@ -186,16 +187,18 @@ class cDB():
         """
         key = db.Key.from_path("cList", listName)
         l = db.get(key)
-        if (l.toUpdate!=None and not l.toUpdate) and (l.dateUpdated!=None and l.dateUpdated>= cDBUtil.getLastWednesday().date):
-            #if this list has been updated after last wednesday, there aren't any new updates, so ignore and move on
+        if (l.toUpdate) or l.dateUpdated==None or l.dateUpdated<cDBUtil.getLastWednesday().date:
+
+            l.releases=[]
+            for series in l.series:
+                check = cDBUtil.getReleaseForSeries(series)
+                if check!=None and check.releaseName not in l.releases:
+                    
+                    l.releases.append(check.releaseName)
+                l.dateUpdated= datetime.date.today()
+                l.toUpdate=False
+            l.put()
+        else:
             return
-        for series in l.series:
-            check = cDBUtil.getReleaseForSeries(series)
-            if check!=None and check.releaseName not in l.releases:
-                
-                l.releases.append(check.releaseName)
-            l.dateUpdated= datetime.date.today()
-            l.toUpdate=False
-        l.put()
     
             

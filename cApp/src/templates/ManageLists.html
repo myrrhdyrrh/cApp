@@ -8,18 +8,26 @@
   <script type='text/javascript' charset='utf-8'>
    function fillDiv(listval){
     	var t = document.getElementById("listVal");
-    	for(var i=0; i<listval.length;i++){
-    	
-    	
-    		t.innerHTML= t.innerHTML+listval[i]+"<br/>";
-    	}
+    	t.innerHTML=listval
     	t.style.cssText="";
     }
     function showList(listID){
     	var t="#"+listID;
     	var v = window[listID];
-    	fillDiv(v);
+    	$.ajax({
+    	type: "POST",
+  		url: "/GetUserList",
+  		data: {listName: listID},
+  		success: function(resp){
+  		
+  		dat = resp.replace(/u'/g,"").replace(/'/g,"").replace(/[\[\]]/g,"").replace(/, /g, "<br/>")
+  		alert(dat);
+  		fillDiv(dat);
+  		
     	$('#listVal').bPopup();
+  		}
+});
+    	
 
     }
   
@@ -71,9 +79,6 @@
 <p>These are your lists:<br/>
 
 {% for r in results %}
-<script>
-var {{r.name|safe}} = {{r.series|jsonify|safe}};
-</script>
 <a  onclick='showList("{{r.name|safe}}")' href="javascript:void(0);" id="{{r.name}}">{{r.name}}</a>
     <br/>
 {% endfor %}

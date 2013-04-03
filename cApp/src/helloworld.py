@@ -106,7 +106,7 @@ class userSeries(webapp2.RequestHandler):
         if user:
             writeNavBar(self)
             cuser=cUser(user)
-            series = cdb.getAllSeriesForUser(cuser.getUser())
+            series = cdb.getAllSeriesForUser(user)
             series = [s.name for s in series]
             tv= {"results":sorted(series)}
             self.response.out.write(template.render(getTemplatePath("UserResults"), tv))
@@ -164,7 +164,14 @@ class SetUp(webapp2.RequestHandler):
             #self.redirect("/update/UpdateSeries")
         else:
             self.redirect(users.create_login_url(self.request.uri))
-        
+
+class GetUserList(webapp2.RequestHandler):
+    def post(self):
+        user=users.get_current_user()
+        cdb= cDB()
+        listName = self.request.get("listName");
+        uList=  cdb.getListForUser(listName, user).series
+        self.response.out.write(uList)
 class ManageUserLists(webapp2.RequestHandler):
     
     def setup(self, user):
@@ -226,6 +233,7 @@ class UserAPI(webapp2.RequestHandler):
                 self.response.out.write(json.dumps(output))
         
 app = webapp2.WSGIApplication([('/', MainPage),
+                               ('/GetUserList', GetUserList),
                                ('/PickSeries', pickSeries),
                                ('/UserSeries', userSeries),
                                ('/UserReleases', userReleases),
