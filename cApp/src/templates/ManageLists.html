@@ -7,27 +7,43 @@
   <script src="/JS/bPopUp.js"></script>
 
   <script type='text/javascript' charset='utf-8'>
-  function showButton(id){
+  function showButton(id, listname){
   
     var xBtn = $("#" + id).children(".closeSign");
-    xBtn.css("display", "inline");
+    xBtn.unbind('click').click(function () { clickFunc(document.getElementById(id),listname)});
+    xBtn.css("display", "inline");   
+    xBtn.click(function () { clickFunc(document.getElementById(id),listname)});
   }
 
-function hideButton(){
+function clickFunc(obj,listname){
+
+    $.ajax({
+    type:"POST",
+    url:"/DeleteEntry",
+    data: {listName:listname,
+    		title:obj.innerText},   
+   	success:function(resp){
+    	showList(listname);
+    }
+    });
+    xBtn.unbind('click').click(function () { clickFunc(document.getElementById(id),listname)});
+}
+function hideButton(id, listname){
     
     $(".closeSign").css("display", "none");
+    $(".closeSign").onclick="";
 }
-   function fillDiv(listval){
+   function fillDiv(listval, listname){
     	var t = document.getElementById("listVal");
     	t.innerHTML=""
     	var list = listval.split(", ")
     	for(var i=0; i<list.length;i++){
     	
-    		t.innerHTML=t.innerHTML+ "<div id='entry"+i+"' class='outer'><img class ='closeSign' src='/images/closebutton1' style='display:none'>"+list[i]+"</div><br/>";
+    		t.innerHTML=t.innerHTML+ "<div id='entry"+i+"' class='outer'><img class ='closeSign' src='/images/closebutton1' style='display:none'>"+list[i]+"</div>";
     	}
 	$(".outer").hover(
-    function() {showButton(this.id);},
-    function() {hideButton(this.id);});
+    function() {showButton(this.id, listname);},
+    function() {hideButton(this.id, listname);});
     	t.style.cssText="";
     }
     function showList(listID){
@@ -40,8 +56,9 @@ function hideButton(){
   		success: function(resp){
   		
   		dat = resp.replace(/u'/g,"").replace(/'/g,"").replace(/[\[\]]/g,"")
-  		fillDiv(dat);
+  		fillDiv(dat, listID);
   		
+    	$('#listVal').bPopup().close();//incase this was already open
     	$('#listVal').bPopup();
   		}
 });

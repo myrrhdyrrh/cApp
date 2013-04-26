@@ -172,7 +172,9 @@ class cDB():
         remove a series from a given list for a user
         """
         l = self.getListForUser(listName, user)
-        l.series.remove(seriesName)      
+        l.series.remove(seriesName)
+        l.toUpdate=True
+        l.put()
     
     def updateAllListsForUser(self, user):
         """

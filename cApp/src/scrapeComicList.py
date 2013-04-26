@@ -20,7 +20,7 @@ def getSeries(series, fun=None):
     for link in soup.findAll("a"):
         text = link.getText()
         #ignore Variants and subsequent printings
-        if "variant" in text or " ptg" in text.lower():
+        if "Variant" in text or " ptg" in text or " DF " in text:
             continue
         for title in series:
             if title.lower() in text.lower():                
@@ -86,5 +86,3 @@ def formatLine(line):
     output+="\n"
       
     return output,series
-
-

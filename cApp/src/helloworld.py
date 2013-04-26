@@ -172,6 +172,7 @@ class GetUserList(webapp2.RequestHandler):
         listName = self.request.get("listName");
         uList=  cdb.getListForUser(listName, user).series
         self.response.out.write(uList)
+
 class ManageUserLists(webapp2.RequestHandler):
     
     def setup(self, user):
@@ -201,6 +202,15 @@ class ManageUserLists(webapp2.RequestHandler):
         else:
             self.redirect(users.create_login_url(self.request.uri))
 
+class DeleteEntry(webapp2.RequestHandler):
+    def post(self):
+        title = self.request.get_all("title")
+        listName= self.request.get("listName")
+        cdb=cDB()
+        user= users.get_current_user()
+        for t in title:
+            cdb.deleteSeriesFromListForUser(t, listName, user)
+            self.response.out.write(t+ " " + listName+"\n")
 class UserAPI(webapp2.RequestHandler):
     def get(self):
          method = self.request.uri.split("/")[-1]
@@ -240,7 +250,8 @@ app = webapp2.WSGIApplication([('/', MainPage),
                                ('/ManageLists', ManageUserLists),
                                (r'/api/.*/.*', UserAPI),
                                ('/update/UpdateSeries',UpdateSeries),
-                               ('/update/Setup', SetUp)],
+                               ('/update/Setup', SetUp),
+                               ('/DeleteEntry', DeleteEntry)],
                               debug=True)
 template.register_template_library(
  'common.templatefilters')
