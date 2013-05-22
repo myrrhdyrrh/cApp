@@ -68,10 +68,7 @@
 
 <br/>
 <div id="pick" class='comicItem'>
-<form action="/PickSeries" method="post">
-<textarea name="batchAdd" id="message"></textarea>
-<input type="submit" name="submit" id="submit" value="Send"/>
-</form>
+
 <br/>
 {% for s in series%}
 <input type='checkbox' name='seriesName' value='{{s}}'> {{s}}</input><br/>

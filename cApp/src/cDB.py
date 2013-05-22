@@ -36,6 +36,8 @@ class cDB():
                 series = cList(key_name=listName)
                 series.name="Follow"
                 series.user=user.user_id()
+                series.series=[]
+                series.releases=[]
                 series.put()
                 userE.userLists.append(listName)
                 userE.put()
