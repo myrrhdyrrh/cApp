@@ -3,7 +3,7 @@ from BeautifulSoup import BeautifulSoup, SoupStrainer
 from google.appengine.ext import db
 
 def getSeries(series, fun=None):
-    url = "http://www.midtowncomics.com/store/weeklyreleasebuy.asp"
+    url = "http://www.midtowncomics.com/rssfeed/rssallnewrelease.xml"
     #open the file that contains the comics we're currently reading
     series.extend([a +" Annual" for a in series])
 
@@ -17,7 +17,7 @@ def getSeries(series, fun=None):
     #iterate through current reads, see what's coming out this week that we care
     #about
     soup = BeautifulSoup(page)
-    for link in soup.findAll("a"):
+    for link in soup.findAll("title"):
         text = link.getText()
         #ignore Variants and subsequent printings
         if "Variant" in text or " ptg" in text or " DF " in text:

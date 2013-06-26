@@ -127,7 +127,7 @@ class userReleases(webapp2.RequestHandler):
             cdb.updateAllListsForUser(user)
             for l in cdb.getAllListsForUser(user):
                 self.response.out.write(l.name+":<br>")
-                tv = {"results": l.releases}
+                tv = {"results": sorted(l.releases)}
                 self.response.out.write(template.render(getTemplatePath("UserResults"), tv))
         else:
             self.redirect(users.create_login_url(self.request.uri))
@@ -171,7 +171,8 @@ class GetUserList(webapp2.RequestHandler):
         cdb= cDB()
         listName = self.request.get("listName");
         uList=  cdb.getListForUser(listName, user).series
-        self.response.out.write(uList)
+        self.response.out.write(sorted(uList))
+        
 
 class ManageUserLists(webapp2.RequestHandler):
     
