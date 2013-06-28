@@ -100,6 +100,9 @@ def makeReleaseForSeries(releaseName, seriesName):
     """
     day = getNextWednesday()
     query = db.GqlQuery("SELECT * FROM Release WHERE ANCESTOR IS :1 AND seriesName= :2", day, seriesName)
+    query2 = db.GqlQuery("SELECT * FROM Release WHERE releaseName= :1", releaseName)#hope this doesn't break
+    if getCountOfQuery(query2)>0:
+        return
     results = query.run()
     count =0
     for r in results:

@@ -192,7 +192,6 @@ class cDB():
         key = db.Key.from_path("cList", listName)
         l = db.get(key)
         if (l.toUpdate) or l.dateUpdated==None or l.dateUpdated<cDBUtil.getLastWednesday().date:
-
             l.releases=[]
             for series in l.series:
                 check = cDBUtil.getReleaseForSeries(series)
